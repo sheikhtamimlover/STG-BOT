@@ -3,7 +3,7 @@
 
 # 🤖 STG BOT
 
-<img src="https://i.ibb.co.com/Ngch93Rz/818-F84-BF-03-F7-499-A-8-C77-B7-E23-C9-C4-AE4-modified.png" alt="STG BOT Logo" width="200" style="border-radius: 50%"/>
+<img src="https://i.ibb.co/Ngch93Rz/818-F84-BF-03-F7-499-A-8-C77-B7-E23-C9-C4-AE4-modified.png" alt="STG BOT Logo" width="200" style="border-radius: 50%"/>
 
 ### Advanced Telegram Bot Framework
 
