@@ -1,0 +1,149 @@
+module.exports = {
+  config: {
+    name: "cmd",
+    aliases: [],
+    author: "ST",
+    version: "1.0.0",
+    cooldown: 5,
+    role: 2,
+    description: "Manage commands (load, unload, install, delete, loadall)",
+    category: "admin",
+    usePrefix: true
+  },
+
+  ST: async function ({ event, api, args, message }) {
+    try {
+      if (args.length < 1) {
+        const helpText = `🔧 Command Management\n\n` +
+          `Usage:\n` +
+          `${global.config.prefix}cmds load <name> - Load/reload a command\n` +
+          `${global.config.prefix}cmds unload <name> - Unload a command\n` +
+          `${global.config.prefix}cmds install <file.js> - Install from code (reply to code)\n` +
+          `${global.config.prefix}cmds delete <file.js> - Delete command file\n` +
+          `${global.config.prefix}cmds loadall - Reload all commands\n\n` +
+          `Example: ${global.config.prefix}cmds load ping`;
+        
+        return message.reply(helpText);
+      }
+
+      const action = args[0].toLowerCase();
+
+      if (action === 'load') {
+        if (!args[1]) {
+          return message.reply(`❌ Usage: ${global.config.prefix}cmds load <command_name>`);
+        }
+        
+        const name = args[1].toLowerCase();
+        const result = await global.reloadCommand(name);
+        
+        if (result.success) {
+          global.log.success(`Command ${name} reloaded by ${event.from.first_name}`);
+          return message.reply(`✅ ${result.message}`);
+        } else {
+          global.log.error(`Failed to reload command ${name}: ${result.message}`);
+          return message.reply(`❌ ${result.message}`);
+        }
+      }
+
+      if (action === 'unload') {
+        if (!args[1]) {
+          return message.reply(`❌ Usage: ${global.config.prefix}cmds unload <command_name>`);
+        }
+        
+        const name = args[1].toLowerCase();
+        
+        if (name === 'cmds' || name === 'help' || name === 'admin') {
+          return message.reply(`⚠️ Cannot unload protected system command: ${name}`);
+        }
+        
+        const result = global.unloadCommand(name);
+        
+        if (result.success) {
+          global.log.success(`Command ${name} unloaded by ${event.from.first_name}`);
+          return message.reply(`✅ ${result.message}`);
+        } else {
+          global.log.error(`Failed to unload command ${name}: ${result.message}`);
+          return message.reply(`❌ ${result.message}`);
+        }
+      }
+
+      if (action === 'install') {
+        if (!event.reply_to_message || !event.reply_to_message.text) {
+          return message.reply(`❌ Usage:\n1. Send the code as a message\n2. Reply to that message with: ${global.config.prefix}cmds install <filename.js>`);
+        }
+
+        if (!args[1]) {
+          return message.reply(`❌ Usage: ${global.config.prefix}cmds install <filename.js>`);
+        }
+
+        const fileName = args[1];
+        const code = event.reply_to_message.text;
+
+        if (!fileName.endsWith('.js')) {
+          return message.reply(`❌ Filename must end with .js`);
+        }
+
+        const result = global.installCommandFile(fileName, code);
+        
+        if (result.success) {
+          await global.reloadCommand(fileName.replace('.js', ''));
+          global.log.success(`Command ${fileName} installed by ${event.from.first_name}`);
+          return message.reply(`✅ ${result.message}\n💡 Command loaded and ready to use!`);
+        } else {
+          global.log.error(`Failed to install command ${fileName}: ${result.message}`);
+          return message.reply(`❌ ${result.message}`);
+        }
+      }
+
+      if (action === 'delete') {
+        if (!args[1]) {
+          return message.reply(`❌ Usage: ${global.config.prefix}cmds delete <filename.js>`);
+        }
+
+        const fileName = args[1];
+
+        if (!fileName.endsWith('.js')) {
+          return message.reply(`❌ Filename must end with .js`);
+        }
+
+        const protectedCommands = ['cmds.js', 'events.js', 'help.js', 'admin.js', 'restart.js'];
+        if (protectedCommands.includes(fileName)) {
+          return message.reply(`⚠️ Cannot delete protected system command: ${fileName}`);
+        }
+
+        const result = global.deleteCommandFile(fileName);
+        
+        if (result.success) {
+          global.log.success(`Command ${fileName} deleted by ${event.from.first_name}`);
+          return message.reply(`✅ ${result.message}\n⚠️ File permanently deleted!`);
+        } else {
+          global.log.error(`Failed to delete command ${fileName}: ${result.message}`);
+          return message.reply(`❌ ${result.message}`);
+        }
+      }
+
+      if (action === 'loadall') {
+        const msg = await message.reply('⏳ Reloading all commands...');
+        
+        const result = await global.loadCommands(false);
+        
+        const responseText = `✅ Commands Reloaded\n\n` +
+          `📦 Loaded: ${result.loaded.length} commands\n` +
+          `❌ Errors: ${result.errors.length} commands\n\n` +
+          `Total: ${global.ST.commands.size} commands active`;
+        
+        global.log.success(`All commands reloaded by ${event.from.first_name}`);
+        await api.editMessageText(responseText, {
+          chat_id: event.chat.id,
+          message_id: msg.message_id
+        });
+      } else {
+        return message.reply(`❌ Unknown action: ${action}\n\n💡 Use ${global.config.prefix}cmds to see available options`);
+      }
+
+    } catch (error) {
+      global.log.error('Error in cmds command:', error);
+      message.reply(`❌ Error: ${error.message}`);
+    }
+  }
+};

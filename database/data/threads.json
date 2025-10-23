@@ -1,0 +1,25 @@
+{
+  "-4858887263": {
+    "id": "-4858887263",
+    "name": "STG BOT",
+    "type": "group",
+    "totalUsers": 0,
+    "totalMessages": 3,
+    "userMessages": {
+      "1656504360": 3
+    },
+    "createdAt": 1761191545039
+  },
+  "-1003109709811": {
+    "id": "-1003109709811",
+    "name": "STG BOT",
+    "type": "supergroup",
+    "totalUsers": 2,
+    "totalMessages": 8,
+    "userMessages": {
+      "1087968824": 1,
+      "1656504360": 7
+    },
+    "createdAt": 1761191706956
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "1087968824": {
+    "id": "1087968824",
+    "firstName": "Group",
+    "lastName": "",
+    "username": "GroupAnonymousBot",
+    "pfpUrl": "https://api.telegram.org/file/bot8249690283:AAG7ChB4TiFQfHhbrupQ-jduIEqTSORaF0g/photos/file_1.jpg",
+    "location": "",
+    "exp": 5,
+    "money": 0,
+    "level": 1,
+    "msgCountPrivate": 0,
+    "msgCountThread": {},
+    "createdAt": 1761191706953
+  },
+  "1656504360": {
+    "id": "1656504360",
+    "firstName": "Sheikh",
+    "lastName": "Tamim",
+    "username": "sheikh_tamim",
+    "pfpUrl": "https://api.telegram.org/file/bot8249690283:AAG7ChB4TiFQfHhbrupQ-jduIEqTSORaF0g/photos/file_0.jpg",
+    "location": "",
+    "exp": 170,
+    "money": 1000,
+    "level": 2,
+    "msgCountPrivate": 41,
+    "msgCountThread": {
+      "-1003109709811": 6
+    },
+    "createdAt": 1761183606719,
+    "lastDailyClaim": "2025-10-23"
+  },
+  "8249690283": {
+    "id": "8249690283",
+    "firstName": "STG BOT",
+    "lastName": "",
+    "username": "ST_G_BOT",
+    "pfpUrl": "",
+    "location": "",
+    "exp": 0,
+    "money": 0,
+    "level": 1,
+    "msgCountPrivate": 0,
+    "msgCountThread": {},
+    "createdAt": 1761191544465
+  },
+  "5900900691": {
+    "id": "5900900691",
+    "firstName": "Nihan",
+    "lastName": "Ahmed",
+    "username": "nihan_alone",
+    "pfpUrl": "",
+    "location": "",
+    "exp": 0,
+    "money": 0,
+    "level": 1,
+    "msgCountPrivate": 0,
+    "msgCountThread": {},
+    "createdAt": 1761191593575
+  }
+}

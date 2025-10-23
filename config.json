@@ -1,0 +1,27 @@
+{
+  "prefix": "/",
+  "usePrefix": true,
+  "adminUID": [],
+  "onlyAdmin": false,
+  "timezone": "Asia/Dhaka",
+  "ownerName": "Your Name",
+  "botName": "STG | BOT",
+  "token": "",
+  "allowInboxMode": true,
+  "autoRestart": true,
+  "logLevel": "info",
+  "disabledCommands": [],
+  "disabledEvents": [],
+  "database": {
+    "type": "json",
+    "uriMongodb": "",
+    "autoSyncWhenStart": false,
+    "autoRefreshThreadInfoFirstTime": true,
+    "notes": "(1) type selects 'json' or 'mongodb'. If you choose mongodb, enter uri connect mongodb in the uriMongodb section. I recommend using 'mongodb', json is not recommended for large scale. (2) when you set autoSyncWhenStart to true, the bot will automatically synchronize the data in the database when starting the bot, this will make the bot start slower. (3) when you set autoRefreshThreadInfoFirstTime to true, the bot will automatically refresh the thread information when get first message from the thread since starting the bot"
+  },
+  "levelSystem": {
+    "enabled": true,
+    "expPerMessage": 5,
+    "expToLevelUp": 100
+  }
+}
