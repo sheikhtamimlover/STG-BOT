@@ -1,4 +1,3 @@
-
 [
   {
     "version": "1.0.0",
@@ -9,5 +8,46 @@
     "imageUrl": [],
     "videoUrl": [],
     "audioUrl": []
+  },
+  {
+    "version": "1.0.1",
+    "files": {
+      "bot/handler/autoload.js": "update to 1.0.1",
+      "bot/handler/handlerEvents.js": "update to 1.0.1",
+      "bot/login/connectSocketIO.example.js": "aaded",
+      "bot/login/server.js": "added",
+      "bot/login/socketIO.js": "added",
+      "bot/login/login.js": "update to 1.0.1",
+      "bot/autoUptime.js": "added",
+      "dashboard/index.html": "added",
+      "dashboard/script.js": "added",
+      "dashboard/style.css": "added",
+      "config.json": {
+      "serverUptime": {
+    "enabled": false,
+    "port": 5000,
+    "socket": {
+      "enable": true,
+      "channelName": "uptime",
+      "verifyToken": "stgbot"
+    },
+    "dashboard": {
+      "passwordProtection": false,
+      "password": ""
+    }
+  },
+  "autoUptime": {
+    "enable": false,
+    "url": "",
+    "timeInterval": 180
   }
+    },
+      "updater.js": "update to 1.0.1",
+      "restoreBackup.js": "added",
+      "utils.js":"update to 1.0.1",
+      "ST.js": "update to 1.0.1"
+    },
+    "note": "Added autouptimer and dashboard. Also added message.indicator() function for get type indicator , fix message.react() . If get any issue use streport cmd. "
+  }
+
 ]

@@ -23,5 +23,23 @@
     "enabled": true,
     "expPerMessage": 5,
     "expToLevelUp": 100
+  },
+  "serverUptime": {
+    "enabled": false,
+    "port": 5000,
+    "socket": {
+      "enable": true,
+      "channelName": "uptime",
+      "verifyToken": "stgbot"
+    },
+    "dashboard": {
+      "passwordProtection": false,
+      "password": ""
+    }
+  },
+  "autoUptime": {
+    "enable": false,
+    "url": "",
+    "timeInterval": 180
   }
 }

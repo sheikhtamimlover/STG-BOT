@@ -173,10 +173,19 @@ fs.copyFileSync = function (src, dest) {
     fs.mkdirSync(backupsPath);
   const folderBackup = `${backupsPath}/backup_${currentVersion}`;
 
+  // Clean up old backups from root directory
   const foldersBackup = fs.readdirSync(process.cwd())
     .filter(folder => folder.startsWith("backup_") && fs.lstatSync(folder).isDirectory());
   for (const folder of foldersBackup)
     fs.moveSync(folder, `${backupsPath}/${folder}`);
+
+  // Save current version info for auto-restore
+  const backupInfo = {
+    version: currentVersion,
+    timestamp: new Date().toISOString(),
+    targetVersion: createUpdate.version
+  };
+  fs.writeFileSync(`${folderBackup}/backup_info.json`, JSON.stringify(backupInfo, null, 2));
 
   logger.info(`🔄 Updating to version ${logger.color.yellow(createUpdate.version)}`);
   const { files, deleteFiles, reinstallDependencies, imageUrl, videoUrl, audioUrl } = createUpdate;
@@ -284,15 +293,34 @@ fs.copyFileSync = function (src, dest) {
   if (reinstallDependencies) {
     logger.info('📦 Installing packages...');
     const { execSync } = require('child_process');
-    execSync('npm install', { stdio: 'inherit' });
-    logger.success('✅ Packages installed successfully!');
+    try {
+      execSync('npm install', { stdio: 'inherit' });
+      logger.success('✅ Packages installed successfully!');
+    } catch (installError) {
+      logger.error('❌ Package installation failed, initiating auto-restore...');
+      throw new Error('Package installation failed');
+    }
   }
 
   logger.success(`💾 Backup saved to ${logger.color.yellow(folderBackup)}`);
   logger.success('✅ Update completed successfully!');
   logger.info('🔄 You can now restart the bot to use the updated version.');
 
+  // Mark update as successful
+  fs.writeFileSync(`${process.cwd()}/tmp/last_update_success.txt`, createUpdate.version);
+
 })().catch(error => {
   logger.error('❌ Update process failed:', error.message);
+  logger.warn('🔄 Initiating automatic restore from backup...');
+
+  // Auto-restore on failure
+  try {
+    const { autoRestore } = require('./restoreBackup');
+    autoRestore();
+  } catch (restoreError) {
+    logger.error('❌ Auto-restore failed:', restoreError.message);
+    logger.error('⚠️ Please manually restore using: node restoreBackup.js');
+  }
+
   process.exit(1);
 });
