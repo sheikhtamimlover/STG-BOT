@@ -97,6 +97,6 @@
       "utils.js": "update to v1.2.0",
       "ST.js": "update to v1.2.0"
     },
-    "note": " "
+    "note": "Added dm/gc approval system , added suggest cmds , added some admins features some cmds . fix many issues"
   }
 ]
