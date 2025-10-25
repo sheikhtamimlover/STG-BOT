@@ -2,7 +2,7 @@ module.exports = {
   config: {
     name: "welcome",
     author: "ST",
-    version: "2.0",
+    version: "1.2.0",
     description: "Welcome new members and bot-added to groups",
     eventType: "new_member"
   },
@@ -17,6 +17,68 @@ module.exports = {
           const addedBy = event.from;
           const addedByName = addedBy.first_name + (addedBy.last_name ? ' ' + addedBy.last_name : '');
           const addedByUsername = addedBy.username ? `@${addedBy.username}` : 'No username';
+          
+          // Check if group approval is enabled
+          if (global.config.groupApproval?.enabled) {
+            // Check if added by admin
+            const isAdmin = global.config.adminUID.includes(String(addedBy.id));
+            
+            if (!isAdmin) {
+              // Need approval
+              const approvalId = await global.db.addApproval('group', {
+                chatId: String(chatId),
+                chatName: chatTitle,
+                addedBy: String(addedBy.id),
+                addedByName: addedByName
+              });
+              
+              await message.send(
+                `⏳ Thank you for adding me!\n\n` +
+                `This bot requires admin approval to operate in new groups.\n` +
+                `📩 An approval request has been sent to the bot owner.\n\n` +
+                `Please wait for approval. The bot owner will review your request soon.\n\n` +
+                `👤 Added by: ${addedByName}\n` +
+                `🆔 Approval ID: ${approvalId}`
+              );
+              
+              // Send approval request to all admins
+              for (const adminId of global.config.adminUID) {
+                try {
+                  const ownerUsername = global.config.ownerName || 'Bot Owner';
+                  await api.sendMessage(
+                    adminId,
+                    `🔔 New Group Approval Request\n\n` +
+                    `📂 Group: ${chatTitle}\n` +
+                    `🆔 Chat ID: ${chatId}\n` +
+                    `👤 Added by: ${addedByName}\n` +
+                    `📝 Username: ${addedByUsername}\n` +
+                    `🆔 User ID: ${addedBy.id}\n` +
+                    `🕐 Time: ${new Date().toLocaleString()}\n\n` +
+                    `⏳ Waiting for approval...`,
+                    {
+                      reply_markup: {
+                        inline_keyboard: [[
+                          { text: '✅ Approve', callback_data: `approve_group_${approvalId}` },
+                          { text: '❌ Reject', callback_data: `reject_group_${approvalId}` }
+                        ]]
+                      }
+                    }
+                  );
+                } catch (err) {
+                  global.log.error(`Failed to send approval to admin ${adminId}`);
+                }
+              }
+              
+              global.log.info(`Group approval request: ${chatTitle} by ${addedByName}`);
+              continue;
+            } else {
+              // Auto-approve if added by admin
+              await global.db.updateThread(String(chatId), { approved: true });
+            }
+          } else {
+            // Auto-approve if group approval is disabled
+            await global.db.updateThread(String(chatId), { approved: true });
+          }
           
           const botWelcomeMessage = `🤖 Hello ${chatTitle}!\n\n` +
             `✅ Thank you for adding me to this group!\n\n` +

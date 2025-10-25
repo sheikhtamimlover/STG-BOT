@@ -3,7 +3,7 @@ module.exports = {
     name: "tid",
     aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.0",
     cooldown: 3,
     role: 0,
     description: "Get thread/chat/group ID",
@@ -11,29 +11,18 @@ module.exports = {
     usePrefix: true
   },
 
-  ST: async function ({ event, api, message }) {
+  ST: async ({ event, message }) => {
     try {
-      const chatId = event.chat.id;
-      const chatTitle = event.chat.title || 'Private Chat';
-      const chatType = event.chat.type;
-      const memberCount = event.chat.type !== 'private' 
-        ? (await api.getChatMembersCount(chatId)) 
-        : 1;
+      const chatId = event.chat.id; // This is the chat/group ID
+      const chatType = event.chat.type; // private, group, supergroup, channel
 
-      let tidMessage = `🆔 Chat/Thread Information\n\n` +
-        `📍 Chat Name: ${chatTitle}\n` +
-        `🆔 Chat ID: ${chatId}\n` +
-        `📱 Chat Type: ${chatType}\n` +
-        `👥 Members: ${memberCount}`;
+      await message.reply(`• Chat ID: \`${chatId}\`\n• Chat Type: ${chatType}`, {
+        parse_mode: "Markdown"
+      });
 
-      if (event.chat.username) {
-        tidMessage += `\n🔗 Username: @${event.chat.username}`;
-      }
-
-      await message.reply(tidMessage);
     } catch (error) {
-      global.log.error('Error in tid command:', error);
-      message.reply(`❌ Error: ${error.message}`);
+      console.error('Error in /tid command:', error);
+      await message.reply('❌ An error occurred while fetching the chat ID.');
     }
   }
 };

@@ -3,7 +3,7 @@ module.exports = {
     name: "threaddb",
     aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.0",
     cooldown: 5,
     role: 0,
     description: "View thread/group database information",

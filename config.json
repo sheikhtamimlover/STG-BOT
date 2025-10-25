@@ -41,5 +41,18 @@
     "enable": false,
     "url": "",
     "timeInterval": 180
+  },
+  "allowCustomPrefix": true,
+  "showCommandSuggestions": {
+    "enabled": true,
+    "note": "Show command list in Telegram menu (may add @botname in groups)"
+  },
+  "groupApproval": {
+    "enabled": false,
+    "note": "When enabled, bot will require admin approval when added to groups"
+  },
+  "dmApproval": {
+    "enabled": false,
+    "note": "When enabled, users need approval to use bot in DM"
   }
 }

@@ -3,7 +3,7 @@
 
 # 🤖 STG BOT
 
-<img src="https://i.ibb.co/Ngch93Rz/818-F84-BF-03-F7-499-A-8-C77-B7-E23-C9-C4-AE4-modified.png" alt="STG BOT Logo" width="200" style="border-radius: 50%"/>
+<img src="https://i.ibb.co.com/Ngch93Rz/818-F84-BF-03-F7-499-A-8-C77-B7-E23-C9-C4-AE4-modified.png" alt="STG BOT Logo" width="200" style="border-radius: 50%"/>
 
 ### Advanced Telegram Bot Framework
 
@@ -46,6 +46,11 @@
 - 💰 **Economy System** - Built-in money and daily rewards
 
 ## 🚀 Installation
+
+<div align="center">
+<img src="https://i.ibb.co.com/HLBHbC5G/IMG-7471.jpg" alt="Basic Functions" width="600"/>
+<p><em>Basic Bot Functions</em></p>
+</div>
 
 ### Quick Setup (Recommended)
 
@@ -149,10 +154,110 @@ Edit `config.json` to customize your bot:
 - `/shell <command>` - Execute shell commands
 - `/cmd load/unload/reload <name>` - Manage commands
 - `/events load/unload <name>` - Manage events
+- `/dma` or `/dmapproval` - Manage DM approval requests
+- `/ga` or `/groupapproval` - Manage group approval requests
+
+<div align="center">
+<img src="https://i.ibb.co.com/tPXf8Znn/IMG-7491.jpg" alt="Update Notification" width="400"/>
+<p><em>Update Notification Example</em></p>
+</div>
 
 ### Database Commands
 - `/userdb [@user]` - View user database information
 - `/threaddb` - View group/thread database information
+
+## 🔐 Approval Systems
+
+STG BOT includes powerful approval systems to control who can use the bot in DMs and which groups the bot can operate in.
+
+### DM Approval System
+
+<div align="center">
+<img src="https://i.ibb.co.com/xSN6snzF/IMG-7499.jpg" alt="DM Approval Example" width="400"/>
+<p><em>DM Approval Request Example</em></p>
+</div>
+
+When enabled in `config.json`, users must request approval before using the bot in private messages.
+
+**How it works:**
+
+1. **User sends first DM**: When a non-approved user sends a message to the bot in DM, they receive a notification that approval is required
+2. **Automatic approval request**: The bot automatically creates an approval request and notifies the user to wait
+3. **Admin review**: Bot owners can use `/dma` to view all pending approval requests
+4. **Admin actions**:
+   - View pending: `/dma` - Shows list of users waiting for approval
+   - View approved: `/dma approved` - Shows list of approved users
+   - Approve user: Reply with `a <number>` (e.g., `a 1` approves first user)
+   - Reject user: Reply with `r <number>` (e.g., `r 1` rejects and bans first user)
+   - Revoke approval: In approved list, reply with `r <number>` to revoke and ban
+
+<div align="center">
+<img src="https://i.ibb.co.com/p6kMs0xW/IMG-7498.jpg" alt="Admin DM Approval Management" width="400"/>
+<p><em>Admin Managing DM Approvals</em></p>
+</div>
+
+**Configuration:**
+
+In `config.json`, set:
+```json
+{
+  "dmApproval": {
+    "enabled": true,
+    "note": "When enabled, users need approval to use bot in DM"
+  }
+}
+```
+
+### Group Approval System
+
+When enabled, the bot requires admin approval before it can operate in new groups.
+
+**How it works:**
+
+1. **Bot added to group**: When someone adds the bot to a new group, it sends a notification that approval is required
+2. **Automatic approval request**: The bot creates an approval request with group details
+3. **Admin review**: Bot owners can use `/ga` to view all pending group approvals
+4. **Admin actions**:
+   - View pending: `/ga` - Shows list of groups waiting for approval
+   - View approved: `/ga approved` - Shows list of approved groups
+   - Approve group: Reply with `a <number>` (e.g., `a 1` approves first group)
+   - Reject group: Reply with `r <number>` (e.g., `r 1` rejects and leaves first group)
+   - Revoke approval: In approved list, reply with `r <number>` to revoke and leave group
+
+**Configuration:**
+
+In `config.json`, set:
+```json
+{
+  "groupApproval": {
+    "enabled": true,
+    "note": "When enabled, bot will require admin approval when added to groups"
+  }
+}
+```
+
+**Benefits:**
+- ✅ Prevent spam and abuse
+- ✅ Control bot usage
+- ✅ Review who's using your bot
+- ✅ Maintain quality user/group base
+- ✅ Easy management with simple commands
+
+## 📸 Usage Examples
+
+<div align="center">
+
+### Command Examples
+
+<img src="https://i.ibb.co.com/3yYFJ5zN/IMG-7490.jpg" alt="Example 1" width="300"/>
+<img src="https://i.ibb.co.com/mF8N9mHV/IMG-7470.jpg" alt="Example 2" width="300"/>
+
+<img src="https://i.ibb.co.com/60ydDS9S/IMG-7468.jpg" alt="Example 3" width="300"/>
+<img src="https://i.ibb.co.com/CsXq3K1t/IMG-7469.jpg" alt="Example 4" width="300"/>
+
+<p><em>STG BOT in action - Various command examples</em></p>
+
+</div>
 
 ## 🔨 Creating Custom Commands
 

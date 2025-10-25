@@ -4,7 +4,7 @@ module.exports = {
     name: "update",
     aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.0",
     cooldown: 10,
     role: 2,
     description: "Check and install updates for STG BOT",
@@ -16,7 +16,6 @@ module.exports = {
     try {
       const axios = require('axios');
       const currentVersion = require('../../package.json').version;
-
 
       // Fetch latest version info from GitHub
       let versions;
@@ -33,7 +32,7 @@ module.exports = {
       }
 
       const versionsNeedToUpdate = versions.slice(indexCurrentVersion + 1);
-      
+
       if (versionsNeedToUpdate.length === 0) {
         return message.reply(`✅ STG BOT is up to date!\n📦 Current version: ${currentVersion}`);
       }
@@ -42,28 +41,32 @@ module.exports = {
       let updateText = `🆕 New update available!\n\n`;
       updateText += `📦 Current version: ${currentVersion}\n`;
       updateText += `🎯 Latest version: ${versions[versions.length - 1].version}\n`;
-      updateText += `📝 ${versionsNeedToUpdate.length} update(s) available\n\n`;
+      updateText += `📝 ${versionsNeedToUpdate.length} missed update(s)\n\n`;
 
-      // Show version notes
-      const versionNotes = versionsNeedToUpdate
-        .filter(v => v.note)
-        .map(v => `• v${v.version}: ${v.note}`)
-        .join('\n');
+      // Show ALL missed versions
+      updateText += `📋 Missed Versions:\n`;
+      versionsNeedToUpdate.forEach(v => {
+        updateText += `  • v${v.version}${v.note ? ': ' + v.note : ''}\n`;
+      });
+      updateText += `\n`;
 
-      if (versionNotes) {
-        updateText += `📋 What's New:\n${versionNotes}\n\n`;
-      }
-
-      // Show files that will be updated
+      // Show files that will be updated/deleted
       const allFiles = new Set();
+      const allDeleteFiles = new Set();
       versionsNeedToUpdate.forEach(v => {
         if (v.files) {
           Object.keys(v.files).forEach(file => allFiles.add(file));
         }
+        if (v.deleteFiles) {
+          Object.keys(v.deleteFiles).forEach(file => allDeleteFiles.add(file));
+        }
       });
 
       if (allFiles.size > 0) {
-        updateText += `📁 Files to update: ${allFiles.size}\n`;
+        updateText += `📁 Files to update/add: ${allFiles.size}\n`;
+      }
+      if (allDeleteFiles.size > 0) {
+        updateText += `🗑️ Files to delete: ${allDeleteFiles.size}\n`;
       }
 
       // Show media content if available
@@ -78,10 +81,6 @@ module.exports = {
         if (allAudioUrls.length > 0) updateText += `🎵 Audio: ${allAudioUrls.length}\n`;
       }
 
-      updateText += `\n💡 Reply "yes" to this message to update now.`;
-
-      const sentMsg = await message.reply(updateText);
-
       // Send media if available
       if (allImageUrls.length > 0) {
         for (const imgUrl of allImageUrls.slice(0, 3)) {
@@ -93,8 +92,17 @@ module.exports = {
         }
       }
 
-      // Set up reply handler
-      global.ST.onReply.set(sentMsg.message_id, {
+      const sentMsg = await api.sendMessage(event.chat.id, updateText, {
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '✅ Update Now', callback_data: 'update_confirm_yes' },
+            { text: '❌ Cancel', callback_data: 'update_confirm_no' }
+          ]]
+        }
+      });
+
+      // Set up callback handler
+      global.ST.onCallback.set(sentMsg.message_id, {
         commandName: 'update',
         messageID: sentMsg.message_id,
         author: event.from.id,
@@ -107,38 +115,92 @@ module.exports = {
     }
   },
 
-  onReply: async function ({ event, api, Reply, message }) {
+  onCallback: async function ({ event, api, Callback }) {
     try {
-      const userReply = (event.text || '').toLowerCase().trim();
+      const data = event.data;
       
-      if (Reply.author !== event.from.id) {
-        return;
+      // Check if authorized user
+      if (Callback.author !== event.from.id) {
+        return api.answerCallbackQuery(event.id, { text: '❌ You are not authorized' });
       }
 
-      if (userReply === 'yes') {
-        await message.reply('🔄 Starting update process...\nPlease wait, the bot will restart automatically.');
-
-        // Execute update script
-        const { exec } = require('child_process');
-        exec('node update.js', (error, stdout, stderr) => {
-          if (error) {
-            api.sendMessage(Reply.chatId, `❌ Update failed: ${error.message}`);
-            return;
+      if (data === 'update_confirm_yes') {
+        await api.answerCallbackQuery(event.id, { text: '✅ Starting update...' });
+        await api.editMessageText(
+          '🔄 Starting update process...\n\n✅ Auto-backup enabled\n✅ Auto-restore on failure\n\nPlease wait...',
+          {
+            chat_id: event.message.chat.id,
+            message_id: event.message.message_id
           }
-          
-          // Bot will restart after successful update
+        );
+        
+        await this.executeUpdate(Callback.chatId, api);
+        
+      } else if (data === 'update_confirm_no') {
+        await api.answerCallbackQuery(event.id, { text: '❌ Update cancelled' });
+        await api.editMessageText(
+          '❌ Update cancelled by user.',
+          {
+            chat_id: event.message.chat.id,
+            message_id: event.message.message_id
+          }
+        );
+      }
+
+      global.ST.onCallback.delete(Callback.messageID);
+
+    } catch (error) {
+      global.log.error('Error in update onCallback:', error);
+    }
+  },
+
+  executeUpdate: async function (chatId, api) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+
+      const { spawn } = require('child_process');
+      const updateProcess = spawn('node', ['updater.js'], {
+        stdio: 'pipe'
+      });
+
+      let outputBuffer = '';
+
+      updateProcess.stdout.on('data', (data) => {
+        const output = data.toString();
+        outputBuffer += output;
+        console.log(output);
+      });
+
+      updateProcess.stderr.on('data', (data) => {
+        console.error(data.toString());
+      });
+
+      updateProcess.on('close', async (code) => {
+        if (code === 0) {
+          // Ensure tmp directory exists
+          const tmpDir = path.join(__dirname, '..', '..', 'tmp');
+          if (!fs.existsSync(tmpDir)) {
+            fs.mkdirSync(tmpDir, { recursive: true });
+          }
+
+          // Save restart information (same as restart.js)
+          const restartFile = path.join(tmpDir, 'restart.txt');
+          const restartData = `${chatId} ${Date.now()}`;
+          fs.writeFileSync(restartFile, restartData);
+
+          await api.sendMessage(chatId, '✅ Update completed successfully!\n🔄 Restarting bot...');
           setTimeout(() => {
             process.exit(2);
           }, 2000);
-        });
-      } else {
-        await message.reply('❌ Update cancelled.');
-      }
-
-      global.ST.onReply.delete(Reply.messageID);
+        } else {
+          await api.sendMessage(chatId, `❌ Update failed with code ${code}\n🔄 Auto-restore will activate on next restart`);
+        }
+      });
 
     } catch (error) {
-      global.log.error('Error in update onReply:', error);
+      global.log.error('Error executing update:', error);
+      await api.sendMessage(chatId, `❌ Update execution failed: ${error.message}`);
     }
   }
 };

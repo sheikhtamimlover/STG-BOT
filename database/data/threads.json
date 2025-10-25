@@ -1,25 +1,20 @@
 {
-  "-4858887263": {
-    "id": "-4858887263",
-    "name": "STG BOT",
-    "type": "group",
+  "1656504360": {
+    "id": "1656504360",
+    "name": "",
+    "type": "",
     "totalUsers": 0,
-    "totalMessages": 3,
-    "userMessages": {
-      "1656504360": 3
-    },
-    "createdAt": 1761191545039
+    "customPrefix": "",
+    "approved": false,
+    "createdAt": 1761393102616
   },
   "-1003109709811": {
     "id": "-1003109709811",
-    "name": "STG BOT",
-    "type": "supergroup",
-    "totalUsers": 2,
-    "totalMessages": 8,
-    "userMessages": {
-      "1087968824": 1,
-      "1656504360": 7
-    },
-    "createdAt": 1761191706956
+    "name": "",
+    "type": "",
+    "totalUsers": 0,
+    "customPrefix": "",
+    "approved": false,
+    "createdAt": 1761393112968
   }
 }

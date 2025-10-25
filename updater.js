@@ -3,6 +3,7 @@ const _ = require('lodash');
 const fs = require('fs-extra');
 const path = require('path');
 const Logger = require('./logger/logs');
+const c = require('./logger/color');
 
 const logger = new Logger(global.config?.timezone || 'Asia/Dhaka');
 const sep = path.sep;
@@ -96,22 +97,22 @@ fs.copyFileSync = function (src, dest) {
   const indexCurrentVersion = versions.findIndex(v => v.version === currentVersion);
 
   if (indexCurrentVersion === -1)
-    return logger.error(`❌ Cannot find current version ${logger.color.yellow(currentVersion)} in version list`);
+    return logger.error(`❌ Cannot find current version ${c.yellow(currentVersion)} in version list`);
 
   const versionsNeedToUpdate = versions.slice(indexCurrentVersion + 1);
   if (versionsNeedToUpdate.length === 0)
     return logger.success('✅ STG BOT is already up to date!');
 
   fs.writeFileSync(`${process.cwd()}/version.json`, JSON.stringify(versions, null, 2));
-  logger.info(`📦 Found ${logger.color.yellow(versionsNeedToUpdate.length)} new version(s) to update`);
+  logger.info(`📦 Found ${c.yellow(versionsNeedToUpdate.length)} new version(s) to update`);
 
   const versionNotes = versionsNeedToUpdate
     .filter(v => v.note)
-    .map(v => `${logger.color.cyan(`v${v.version}`)}: ${v.note}`)
+    .map(v => `${c.cyan(`v${v.version}`)}: ${v.note}`)
     .join('\n   ');
 
   if (versionNotes) {
-    console.log(logger.color.bold(logger.color.green('\n📋 What\'s New in Updates:')));
+    console.log(c.green(c.bright('\n📋 What\'s New in Updates:')));
     console.log(`   ${versionNotes}\n`);
   }
 
@@ -120,10 +121,10 @@ fs.copyFileSync = function (src, dest) {
   const allAudioUrls = versionsNeedToUpdate.flatMap(v => v.audioUrl || []);
 
   if (allImageUrls.length > 0 || allVideoUrls.length > 0 || allAudioUrls.length > 0) {
-    console.log(logger.color.bold(logger.color.blue('\n📎 Media Content in Updates:')));
-    if (allImageUrls.length > 0) console.log(`   🖼️  Images: ${logger.color.yellow(allImageUrls.length)} files`);
-    if (allVideoUrls.length > 0) console.log(`   🎥 Videos: ${logger.color.yellow(allVideoUrls.length)} files`);
-    if (allAudioUrls.length > 0) console.log(`   🎵 Audio: ${logger.color.yellow(allAudioUrls.length)} files`);
+    console.log(c.blue(c.bright('\n📎 Media Content in Updates:')));
+    if (allImageUrls.length > 0) console.log(`   🖼️  Images: ${c.yellow(allImageUrls.length)} files`);
+    if (allVideoUrls.length > 0) console.log(`   🎥 Videos: ${c.yellow(allVideoUrls.length)} files`);
+    if (allAudioUrls.length > 0) console.log(`   🎵 Audio: ${c.yellow(allAudioUrls.length)} files`);
     console.log('');
   }
 
@@ -187,11 +188,17 @@ fs.copyFileSync = function (src, dest) {
   };
   fs.writeFileSync(`${folderBackup}/backup_info.json`, JSON.stringify(backupInfo, null, 2));
 
-  logger.info(`🔄 Updating to version ${logger.color.yellow(createUpdate.version)}`);
+  logger.info(`🔄 Updating from v${currentVersion} to v${createUpdate.version}`);
+  logger.info(`📝 Processing ${versionsNeedToUpdate.length} update(s):`);
+  versionsNeedToUpdate.forEach(v => {
+    logger.info(`   • v${v.version}${v.note ? ' - ' + v.note : ''}`);
+  });
+  console.log('');
+
   const { files, deleteFiles, reinstallDependencies, imageUrl, videoUrl, audioUrl } = createUpdate;
 
   if (imageUrl.length > 0 || videoUrl.length > 0 || audioUrl.length > 0) {
-    logger.info(`📎 Media content: ${logger.color.cyan(imageUrl.length)} images, ${logger.color.cyan(videoUrl.length)} videos, ${logger.color.cyan(audioUrl.length)} audio files`);
+    logger.info(`📎 Media content: ${c.cyan(imageUrl.length)} images, ${c.cyan(videoUrl.length)} videos, ${c.cyan(audioUrl.length)} audio files`);
   }
 
   for (const filePath in files) {
@@ -229,8 +236,8 @@ fs.copyFileSync = function (src, dest) {
         fs.copyFileSync(fullPath, `${folderBackup}/${filePath}`);
       fs.writeFileSync(fullPath, JSON.stringify(currentConfigSorted, null, 2));
 
-      console.log(logger.color.bold(logger.color.blue('[↑]')), filePath);
-      console.log(logger.color.bold(logger.color.yellow('[!]')), `Config file ${logger.color.yellow(filePath)} has been updated`);
+      console.log(c.blue(c.bright('[↑]')), filePath);
+      console.log(c.yellow(c.bright('[!]')), `Config file ${c.yellow(filePath)} has been updated`);
     }
     else {
       const contentsSkip = ["DO NOT UPDATE", "SKIP UPDATE", "DO NOT UPDATE THIS FILE"];
@@ -246,18 +253,18 @@ fs.copyFileSync = function (src, dest) {
       }
 
       const firstLine = fileExists ? fs.readFileSync(fullPath, "utf-8").trim().split(/\r?\n|\r/)[0] : "";
-      const indexSkip = contentsSkip.findIndex(c => firstLine.includes(c));
+      const indexSkip = contentsSkip.findIndex(skipContent => firstLine.includes(skipContent));
       if (indexSkip !== -1) {
-        console.log(logger.color.bold(logger.color.yellow('[!]')), `Skipped ${logger.color.yellow(filePath)} (${logger.color.yellow(contentsSkip[indexSkip])})`);
+        console.log(c.yellow(c.bright('[⊘]')), `Skipped ${c.yellow(filePath)} (${c.yellow(contentsSkip[indexSkip])})`);
         continue;
       }
       else {
         fs.writeFileSync(fullPath, Buffer.from(getFile));
 
         console.log(
-          fileExists ? logger.color.bold(logger.color.blue('[↑]')) : logger.color.bold(logger.color.green('[+]')),
+          fileExists ? c.blue(c.bright('[↻]')) + ' UPDATE' : c.green(c.bright('[+]')) + ' ADD',
           `${filePath}:`,
-          logger.color.hex('#858585')(
+          c.dim(
             typeof description == "string" ?
               description :
               typeof description == "object" ?
@@ -279,7 +286,7 @@ fs.copyFileSync = function (src, dest) {
         fs.copyFileSync(fullPath, `${folderBackup}/${filePath}`);
         fs.unlinkSync(fullPath);
       }
-      console.log(logger.color.bold(logger.color.red('[-]')), `${filePath}:`, logger.color.hex('#858585')(description));
+      console.log(c.red(c.bright('[✗]')) + ' DELETE', `${filePath}:`, c.dim(description));
     }
   }
 
@@ -302,7 +309,7 @@ fs.copyFileSync = function (src, dest) {
     }
   }
 
-  logger.success(`💾 Backup saved to ${logger.color.yellow(folderBackup)}`);
+  logger.success(`💾 Backup saved to ${c.yellow(folderBackup)}`);
   logger.success('✅ Update completed successfully!');
   logger.info('🔄 You can now restart the bot to use the updated version.');
 

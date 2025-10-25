@@ -5,7 +5,7 @@ module.exports = {
     name: "eval",
     aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.0",
     cooldown: 0,
     role: 2,
     description: "Execute JavaScript code (Owner only)",
@@ -25,11 +25,11 @@ module.exports = {
       const fs = require('fs');
       const path = require('path');
 
-      let result = eval(code);
-
-      if (result instanceof Promise) {
-        result = await result;
-      }
+      // Create async function to properly handle await in eval
+      const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+      const asyncEval = new AsyncFunction('message', 'api', 'event', 'global', 'require', 'axios', 'fs', 'path', `return (async () => { ${code} })()`);
+      
+      let result = await asyncEval(message, api, event, global, require, axios, fs, path);
 
       let output;
       if (typeof result === 'undefined') {

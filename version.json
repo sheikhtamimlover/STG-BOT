@@ -23,31 +23,80 @@
       "dashboard/script.js": "added",
       "dashboard/style.css": "added",
       "config.json": {
-      "serverUptime": {
-    "enabled": false,
-    "port": 5000,
-    "socket": {
-      "enable": true,
-      "channelName": "uptime",
-      "verifyToken": "stgbot"
-    },
-    "dashboard": {
-      "passwordProtection": false,
-      "password": ""
-    }
-  },
-  "autoUptime": {
-    "enable": false,
-    "url": "",
-    "timeInterval": 180
-  }
-    },
+        "serverUptime": {
+          "enabled": false,
+          "port": 5000,
+          "socket": {
+            "enable": true,
+            "channelName": "uptime",
+            "verifyToken": "stgbot"
+          },
+          "dashboard": {
+            "passwordProtection": false,
+            "password": ""
+          }
+        },
+        "autoUptime": {
+          "enable": false,
+          "url": "",
+          "timeInterval": 180
+        }
+      },
       "updater.js": "update to 1.0.1",
       "restoreBackup.js": "added",
-      "utils.js":"update to 1.0.1",
+      "utils.js": "update to 1.0.1",
       "ST.js": "update to 1.0.1"
     },
     "note": "Added autouptimer and dashboard. Also added message.indicator() function for get type indicator , fix message.react() . If get any issue use streport cmd. "
+  },
+  {
+    "version": "1.2.0",
+    "files": {
+      "bot/handler/autoload.js": "update to 1.2.0",
+      "bot/handler/handlerEvents.js": "update to 1.2.0",
+      "bot/login/login.js": "update to 1.2.0",
+      "database/jsondb.js": "update to 1.2.0",
+      "database/mongodb.js": "update to 1.2.0",
+      "scripts/cmds/adduser.js": "added",
+      "scripts/cmds/autodl.js": "update to v1.2.0",
+      "scripts/cmds/balance.js": "added",
+      "scripts/cmds/ban.js": "added",
+      "scripts/cmds/dmapproval.js": "added",
+      "scripts/cmds/eval.js": "update to v1.2.0",
+      "scripts/cmds/groupapproval.js": "added",
+      "scripts/cmds/hi.js": "added",
+      "scripts/cmds/kick.js": "added",
+      "scripts/cmds/prefix.js": "added",
+      "scripts/cmds/request.js": "added",
+      "scripts/cmds/requestlist.js": "added",
+      "scripts/cmds/spain.js": "added",
+      "scripts/cmds/tag.js": "added",
+      "scripts/cmds/threaddb.js": "update to v1.2.0",
+      "scripts/cmds/tid.js": "update to v1.2.0",
+      "scripts/cmds/uid.js": "update to v1.2.0",
+      "scripts/cmds/update.js": "update to v1.2.0",
+      "scripts/cmds/userdb.js": "update to v1.2.0",
+      "scripts/cmds/warn.js": "added",
+      "scripts/events/welcome.js": "added",
+      "config.json": {
+  "allowCustomPrefix": true,
+  "showCommandSuggestions": {
+    "enabled": true,
+    "note": "Show command list in Telegram menu (may add @botname in groups)"
+  },
+  "groupApproval": {
+    "enabled": false,
+    "note": "When enabled, bot will require admin approval when added to groups"
+  },
+  "dmApproval": {
+    "enabled": false,
+    "note": "When enabled, users need approval to use bot in DM"
   }
-
+      },
+      "updater.js": "update to v1.2.0",
+      "utils.js": "update to v1.2.0",
+      "ST.js": "update to v1.2.0"
+    },
+    "note": " "
+  }
 ]

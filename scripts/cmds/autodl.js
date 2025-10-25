@@ -19,8 +19,8 @@ setInterval(() => {
 module.exports = {
   config: {
     name: "autodl",
-    aliases: ["autovideo", "tiktok", "facebook"],
-    version: "1.0.0",
+    aliases: [],
+    version: "1.2.0",
     author: "ST | Sheikh Tamim",
     cooldown: 5,
     role: 0,
@@ -28,25 +28,36 @@ module.exports = {
     category: "media",
     usePrefix: false
   },
-  
+
   ST: async function ({ api, event, args, message }) {
-    return message.reply("This command is only available in chat.");
+    // Allow manual URL submission via command
+    if (args.length === 0) {
+      return message.reply("📌 Usage: Send a video URL or use /autodl <url>");
+    }
+
+    const url = args[0];
+    event.text = url; // Set text to URL for processing
+    return this.onChat({ event, api, message });
   },
 
-  onChat: async function ({ event, api, message }) {
+  onChat: async function ({ bot, message, msg, chatId, args, db }) {
     try {
+      // Use msg instead of event for consistency
+      const event = msg;
+      
       // Only process text messages (no attachments)
-      if (!event.text || event.from.is_bot) {
+      if (!event || !event.text || event.from?.is_bot) {
         return;
       }
 
       const dipto = event.text.trim();
-      
-      // Check if this URL was already processed recently
-      if (processedUrls.has(dipto)) {
+
+      // Only check duplicates if it's the exact same URL within 30 seconds
+      const lastProcessed = processedUrls.get(dipto);
+      if (lastProcessed && (Date.now() - lastProcessed) < 30000) {
         return;
       }
-      
+
       // Check if message contains supported URLs
       if (
         dipto.startsWith("https://vt.tiktok.com") ||
@@ -64,10 +75,10 @@ module.exports = {
       ) {
         // Mark URL as processed to prevent re-processing
         processedUrls.set(dipto, Date.now());
-        
+
         const userName = event.from.first_name || "User";
         const w = await message.send(`⏳ Wait ${userName}... Downloading`);
-        
+
         try {
           const dipapis = new global.utils.dipapis();
           const response = await axios.get(`${dipapis.baseURL}/alldl?url=${encodeURIComponent(dipto)}`);
@@ -85,7 +96,7 @@ module.exports = {
           }
 
           const cachePath = path.join(__dirname, "..", "..", "tmp", `video${ex}`);
-          
+
           // Download file
           const fileResponse = await axios.get(d.result, { responseType: "arraybuffer" });
           fs.writeFileSync(cachePath, Buffer.from(fileResponse.data, "binary"));
@@ -107,7 +118,7 @@ module.exports = {
           global.log.error("AutoDL download error:", downloadError.message);
           await message.send(`❌ Error: ${downloadError.message}`);
         }
-        
+
         // Return to prevent further processing
         return;
       }
