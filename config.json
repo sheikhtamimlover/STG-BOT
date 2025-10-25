@@ -25,7 +25,7 @@
     "expToLevelUp": 100
   },
   "serverUptime": {
-    "enabled": false,
+    "enabled": true,
     "port": 5000,
     "socket": {
       "enable": true,
