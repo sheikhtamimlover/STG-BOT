@@ -43,6 +43,10 @@
     "timeInterval": 180
   },
   "allowCustomPrefix": true,
+  "ignoreOldMessages": {
+    "enabled": true,
+    "note": "When enabled, bot will ignore messages sent while it was offline"
+  },
   "showCommandSuggestions": {
     "enabled": true,
     "note": "Show command list in Telegram menu (may add @botname in groups)"

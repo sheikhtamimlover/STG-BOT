@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   banned: { type: Boolean, default: false },
   dmApproved: { type: Boolean, default: false },
   warnings: { type: Object, default: {} },
+  messageCount: { type: Object, default: {} },
   createdAt: { type: Number, default: Date.now }
 });
 
@@ -24,6 +25,9 @@ const threadSchema = new mongoose.Schema({
   totalUsers: { type: Number, default: 0 },
   customPrefix: { type: String, default: '' },
   approved: { type: Boolean, default: false },
+  antiOut: { type: Boolean, default: false },
+  totalMessages: { type: Number, default: 0 },
+  userMessages: { type: Object, default: {} },
   createdAt: { type: Number, default: Date.now }
 });
 
@@ -110,11 +114,13 @@ class MongoDatabase {
     if (!thread) {
       thread = await this.Thread.create({
         id: threadId,
+        threadID: threadId,
         name: '',
         type: '',
         totalUsers: 0,
         customPrefix: '',
         approved: false,
+        antiOut: false,
         createdAt: Date.now()
       });
     }
@@ -250,6 +256,72 @@ class MongoDatabase {
       delete user.warnings[chatId];
       await this.updateUser(userId, { warnings: user.warnings });
     }
+  }
+
+  async incrementMessageCount(userId, threadId) {
+    userId = String(userId);
+    threadId = String(threadId);
+    
+   
+    
+    // Ensure user exists first with proper initialization
+    await this.getUser(userId);
+    
+    // Use atomic increment for user message count
+    const updateKey = `messageCount.${threadId}`;
+    const userUpdate = await this.User.findOneAndUpdate(
+      { id: userId },
+      { 
+        $inc: { [updateKey]: 1 }
+      },
+      { new: true, upsert: false }
+    );
+    
+
+    
+    // Ensure thread exists first with proper initialization
+    await this.getThread(threadId);
+    
+    // Use atomic increment for thread message count
+    const threadUpdate = await this.Thread.findOneAndUpdate(
+      { id: threadId },
+      { 
+        $inc: { 
+          totalMessages: 1,
+          [`userMessages.${userId}`]: 1
+        }
+      },
+      { new: true, upsert: false }
+    );
+    
+   
+    
+    // Extract counts with proper initialization
+    const userCount = userUpdate?.messageCount?.[threadId] || 1;
+    const threadTotal = threadUpdate?.totalMessages || 1;
+    
+  
+    
+    return {
+      userCount: userCount,
+      threadTotal: threadTotal
+    };
+  }
+
+  async getUserMessageCount(userId, threadId) {
+    userId = String(userId);
+    threadId = String(threadId);
+    const user = await this.getUser(userId);
+    return user.messageCount?.[threadId] || 0;
+  }
+
+  async getThreadMessageStats(threadId) {
+    threadId = String(threadId);
+    const thread = await this.getThread(threadId);
+    return {
+      totalMessages: thread.totalMessages || 0,
+      userMessages: thread.userMessages || {}
+    };
   }
 }
 

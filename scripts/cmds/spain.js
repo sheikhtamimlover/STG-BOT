@@ -2,9 +2,9 @@
 module.exports = {
   config: {
     name: "spain",
-    aliases: [],
+    aliases: ["spin", "slot"],
     author: "ST",
-    version: "1.2.0",
+    version: "1.2.1",
     cooldown: 10,
     role: 0,
     description: "Spin the slot machine and win money!",
@@ -59,7 +59,7 @@ module.exports = {
         // Only edit if text changed
         if (spinText !== lastText) {
           try {
-            await message.edit(spinText, initialMsg.message_id);
+            await message.edit(spinText, initialMsg.message_id, event.chat.id);
             lastText = spinText;
           } catch (err) {
             // Ignore if message is not modified
@@ -113,7 +113,7 @@ module.exports = {
       // Final result with Try Again button
       const finalResult = `🎰 Slot Machine Result\n\n[ ${slot1} | ${slot2} | ${slot3} ]\n\n${resultText}\n\n💰 Bet: ${betAmount} coins\n${winAmount > 0 ? '🎁 Won: +' : '💸 Lost: '}${Math.abs(winAmount)} coins\n💵 New Balance: ${newBalance} coins`;
 
-      await message.edit(finalResult, initialMsg.message_id, {
+      await message.edit(finalResult, initialMsg.message_id, event.chat.id, {
         reply_markup: {
           inline_keyboard: [[
             { text: '🎰 Try Again (100 coins)', callback_data: 'spain_again_100' }
@@ -152,15 +152,17 @@ module.exports = {
       // Slot machine symbols
       const symbols = ['🍒', '🍋', '🍊', '🍉', '⭐', '💎', '7️⃣'];
       
-      // Edit message to show spinning
+      // Edit message to show spinning (silently ignore if same content)
       try {
         await api.editMessageText('🎰 Spinning the slot machine...\n\n[ 🎰 | 🎰 | 🎰 ]', {
           chat_id: event.message.chat.id,
           message_id: event.message.message_id
         });
       } catch (editErr) {
-        // If edit fails, continue with new message
-        console.error('Edit error:', editErr.message);
+        // Silently ignore "message is not modified" errors
+        if (!editErr.message.includes('message is not modified')) {
+          console.error('Edit error:', editErr.message);
+        }
       }
 
       // Wait for animation effect

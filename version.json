@@ -98,5 +98,42 @@
       "ST.js": "update to v1.2.0"
     },
     "note": "Added dm/gc approval system , added suggest cmds , added some admins features some cmds . fix many issues"
+  },
+  {
+    "version": "1.2.1",
+    "files": {
+      "bot/handler/autoload.js": "update",
+      "bot/handler/handlerEvents.js": "update",
+      "bot/login/login.js": "update",
+      "database/jsondb.js": "update",
+      "database/mongodb.js": "update",
+      "logger/banner.js": "update",
+      "scripts/cmds/antiout.js": "added",
+      "scripts/cmds/beb.js": "added",
+      "scripts/cmds/callad.js": "added",
+      "scripts/cmds/cmd.js": "update",
+      "scripts/cmds/count.js": "added",
+      "scripts/cmds/event.js": "added",
+      "scripts/cmds/help.js": "update",
+      "scripts/cmds/leave.js": "added",
+      "scripts/cmds/mj.js": "added",
+      "scripts/cmds/noti.js": "added",
+      "scripts/cmds/ping.js": "added",
+      "scripts/cmds/spain.js": "update",
+      "scripts/cmds/tictactoe.js": "added",
+      "scripts/events/leave.js": "update",
+      "scripts/events/messageTracker.js": "update",
+      "config.json": {   
+    "ignoreOldMessages": {
+    "enabled": true,
+    "note": "When enabled, bot will ignore messages sent while it was offline"
+  } },
+      "utils.js": "update",
+      "ST.js": "update"
+    },
+     "deleteFiles": {
+      "scripts/cmds/events.js": "delete"
+     },
+    "note": "Many function/features has added and updateds , added some cmds update events added beb"
   }
 ]

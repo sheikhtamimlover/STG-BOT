@@ -80,6 +80,7 @@ class JsonDatabase {
         banned: false,
         dmApproved: false,
         warnings: {},
+        messageCount: {},
         createdAt: Date.now()
       });
       this.save();
@@ -101,11 +102,15 @@ class JsonDatabase {
     if (!this.threads.has(threadId)) {
       this.threads.set(threadId, {
         id: threadId,
+        threadID: threadId,
         name: '',
         type: '',
         totalUsers: 0,
         customPrefix: '',
         approved: false,
+        antiOut: false,
+        totalMessages: 0,
+        userMessages: {},
         createdAt: Date.now()
       });
       this.save();
@@ -120,6 +125,76 @@ class JsonDatabase {
     this.threads.set(threadId, thread);
     this.save();
     return thread;
+  }
+
+  async incrementMessageCount(userId, threadId) {
+    userId = String(userId);
+    threadId = String(threadId);
+    
+    
+    // Ensure user exists first
+    const user = await this.getUser(userId);
+    
+    // Ensure messageCount object exists
+    if (!user.messageCount || typeof user.messageCount !== 'object') {
+     
+      user.messageCount = {};
+    }
+    
+    // Increment user's message count for this thread
+    const currentUserCount = user.messageCount[threadId] || 0;
+    user.messageCount[threadId] = currentUserCount + 1;
+
+    
+    // Update user in Map
+    this.users.set(userId, user);
+    
+    // Ensure thread exists first
+    const thread = await this.getThread(threadId);
+    
+    // Ensure userMessages object exists
+    if (!thread.userMessages || typeof thread.userMessages !== 'object') {
+
+      thread.userMessages = {};
+    }
+    
+    // Increment thread's total and user-specific count
+    const currentThreadTotal = thread.totalMessages || 0;
+    const currentUserThreadCount = thread.userMessages[userId] || 0;
+    
+    thread.totalMessages = currentThreadTotal + 1;
+    thread.userMessages[userId] = currentUserThreadCount + 1;
+    
+    
+    // Update thread in Map
+    this.threads.set(threadId, thread);
+    
+    // CRITICAL: Save to disk immediately after every increment
+
+    this.save();
+
+    
+    // Return final counts
+    return {
+      userCount: user.messageCount[threadId],
+      threadTotal: thread.totalMessages
+    };
+  }
+
+  async getUserMessageCount(userId, threadId) {
+    userId = String(userId);
+    threadId = String(threadId);
+    const user = await this.getUser(userId);
+    return user.messageCount?.[threadId] || 0;
+  }
+
+  async getThreadMessageStats(threadId) {
+    threadId = String(threadId);
+    const thread = await this.getThread(threadId);
+    return {
+      totalMessages: thread.totalMessages || 0,
+      userMessages: thread.userMessages || {}
+    };
   }
 
   async incrementUserExp(userId, amount = 5) {

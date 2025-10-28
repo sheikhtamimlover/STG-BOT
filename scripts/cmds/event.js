@@ -1,9 +1,9 @@
 module.exports = {
   config: {
-    name: "events",
-    aliases: ["event", "evt"],
+    name: "event",
+    aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.1",
     cooldown: 5,
     role: 2,
     description: "Manage events (load, unload, install, delete, loadall)",
@@ -117,16 +117,21 @@ module.exports = {
         
         const result = await global.loadEvents(false);
         
-        const responseText = `✅ Events Reloaded\n\n` +
-          `📦 Loaded: ${result.loaded.length} events\n` +
-          `❌ Errors: ${result.errors.length} events\n\n` +
-          `Total: ${global.ST.events.size} events active`;
+        let responseText = `╭──────────────◊\n`;
+        responseText += `│ ✅ Events Reloaded\n`;
+        responseText += `├──────────────◊\n`;
+        responseText += `│ 📦 Loaded: ${result.loaded.length} events\n`;
+        responseText += `│ ❌ Errors: ${result.errors.length} events\n`;
+        responseText += `├──────────────◊\n`;
+        responseText += `│ Total: ${global.ST.events.size} events active\n`;
+        responseText += `╰──────────────◊`;
         
         global.log.success(`All events reloaded by ${event.from.first_name}`);
         await api.editMessageText(responseText, {
           chat_id: event.chat.id,
           message_id: msg.message_id
         });
+        return;
       } else {
         return message.reply(`❌ Unknown action: ${action}\n\n💡 Use ${global.config.prefix}events to see available options`);
       }

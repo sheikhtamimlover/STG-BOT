@@ -4,9 +4,9 @@ const os = require('os');
 module.exports = {
   config: {
     name: "ping",
-    aliases: ["upt", "speed"],
+    aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.1",
     cooldown: 5,
     role: 0,
     description: "Check bot response time and system information",
@@ -45,6 +45,11 @@ module.exports = {
     
     const formattedUptime = global.utils.formatUptime(uptime);
     
+    // Get database statistics
+    const allUsers = await global.db.getAllUsers();
+    const allThreads = await global.db.getAllThreads();
+    const totalGCs = allThreads.filter(t => t.type === 'group' || t.type === 'supergroup').length;
+    
     const responseText = `🏓 Pong!\n\n` +
       `📊 System Information:\n\n` +
       `⏱️ API Ping: ${apiPing}ms\n` +
@@ -56,7 +61,9 @@ module.exports = {
       `📈 Bot Statistics:\n` +
       `👤 Commands: ${global.ST.commands.size}\n` +
       `🎭 Events: ${global.ST.events.size}\n` +
-      `⏳ Cooldowns: ${global.ST.cooldowns.size}\n\n` +
+      `⏳ Cooldowns: ${global.ST.cooldowns.size}\n` +
+      `👥 Total Users: ${allUsers.length}\n` +
+      `💬 Total Groups: ${totalGCs}\n\n` +
       `👤 User: ${event.from.first_name}\n` +
       `📍 Chat: ${event.chat.title || 'Private Chat'}`;
     

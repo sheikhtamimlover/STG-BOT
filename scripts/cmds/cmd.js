@@ -3,27 +3,35 @@ module.exports = {
     name: "cmd",
     aliases: [],
     author: "ST",
-    version: "1.0.0",
+    version: "1.2.1",
     cooldown: 5,
     role: 2,
     description: "Manage commands (load, unload, install, delete, loadall)",
     category: "admin",
-    usePrefix: true
+    usePrefix: true,
+    guide: {
+      en: `
+Usage:
+• {p}cmd load <name> - Load/reload a command
+• {p}cmd unload <name> - Unload a command
+• {p}cmd install <file.js> - Install from code (reply to code message)
+• {p}cmd delete <file.js> - Delete command file
+• {p}cmd loadall - Reload all commands
+
+Examples:
+• {p}cmd load ping - Reload ping command
+• Reply to code message then: {p}cmd install help.js
+• {p}cmd delete test.js - Delete test.js file
+• {p}cmd loadall - Reload all commands
+      `.trim()
+    }
   },
 
   ST: async function ({ event, api, args, message }) {
     try {
       if (args.length < 1) {
-        const helpText = `🔧 Command Management\n\n` +
-          `Usage:\n` +
-          `${global.config.prefix}cmds load <name> - Load/reload a command\n` +
-          `${global.config.prefix}cmds unload <name> - Unload a command\n` +
-          `${global.config.prefix}cmds install <file.js> - Install from code (reply to code)\n` +
-          `${global.config.prefix}cmds delete <file.js> - Delete command file\n` +
-          `${global.config.prefix}cmds loadall - Reload all commands\n\n` +
-          `Example: ${global.config.prefix}cmds load ping`;
-        
-        return message.reply(helpText);
+        const guide = this.config.guide.en.replace(/{p}/g, global.config.prefix);
+        return message.reply(`🔧 Command Management\n\n${guide}`);
       }
 
       const action = args[0].toLowerCase();
@@ -68,16 +76,21 @@ module.exports = {
       }
 
       if (action === 'install') {
-        if (!event.reply_to_message || !event.reply_to_message.text) {
-          return message.reply(`❌ Usage:\n1. Send the code as a message\n2. Reply to that message with: ${global.config.prefix}cmds install <filename.js>`);
-        }
-
         if (!args[1]) {
-          return message.reply(`❌ Usage: ${global.config.prefix}cmds install <filename.js>`);
+          return message.reply(`❌ Usage: ${global.config.prefix}cmd install <filename.js> <code>\n\nOr reply to a message containing code with: ${global.config.prefix}cmd install <filename.js>`);
         }
 
         const fileName = args[1];
-        const code = event.reply_to_message.text;
+        let code;
+
+        // Check if code is provided as argument or in reply
+        if (event.reply_to_message && event.reply_to_message.text) {
+          code = event.reply_to_message.text;
+        } else if (args.length > 2) {
+          code = args.slice(2).join(' ');
+        } else {
+          return message.reply(`❌ Please provide code either:\n1. Reply to a message with code\n2. Or provide code as argument`);
+        }
 
         if (!fileName.endsWith('.js')) {
           return message.reply(`❌ Filename must end with .js`);
